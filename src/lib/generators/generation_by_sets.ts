@@ -11,6 +11,12 @@ import {
 
 export type State = {
   phase: "initial" | "iteration" | "done";
+  subphase?:
+    | "selection"
+    | "neighbour"
+    | "random neighbour"
+    | "randon neighbour entry"
+    | "clear wall";
   entries: {
     set: Position[];
     neighbours: Position[];
@@ -19,7 +25,10 @@ export type State = {
 
 export type Config = {};
 
-export type SpecializedMaze = DefaultMazeImplementation<boolean, boolean>;
+export type SpecializedMaze = DefaultMazeImplementation<
+  "first" | "second" | "neighbour" | false,
+  boolean
+>;
 
 export type SpecializedGenerator = MazeGenerator<
   Config,
@@ -57,25 +66,27 @@ export function Generator(config: Config): SpecializedGenerator {
     next(maze, state) {
       switch (state.phase) {
         case "initial":
-          return {
-            maze: Array.from({ length: maze.dimensions[0] })
-              .flatMap((_, row) =>
-                Array.from({ length: maze.dimensions[1] }).map((_, col) => ({
-                  row,
-                  col,
-                })),
-              )
-              .reduce((maze, pos) => {
-                return (Object.keys(direction) as Direction[]).reduce(
-                  (maze, dir) => maze.set_wall(pos, dir, true),
-                  maze,
-                );
-              }, maze),
-            state: {
-              ...state,
-              phase: "iteration",
+          return [
+            {
+              maze: Array.from({ length: maze.dimensions[0] })
+                .flatMap((_, row) =>
+                  Array.from({ length: maze.dimensions[1] }).map((_, col) => ({
+                    row,
+                    col,
+                  })),
+                )
+                .reduce((maze, pos) => {
+                  return (Object.keys(direction) as Direction[]).reduce(
+                    (maze, dir) => maze.set_wall(pos, dir, true),
+                    maze,
+                  );
+                }, maze),
+              state: {
+                ...state,
+                phase: "iteration",
+              },
             },
-          };
+          ];
         case "iteration":
           let id_first = Math.floor(Math.random() * state.entries.length);
           let first = state.entries[id_first];
@@ -98,41 +109,92 @@ export function Generator(config: Config): SpecializedGenerator {
               first.set.find((p) => p.col == origin.col && p.row == origin.row),
             )[0];
 
-          return {
-            maze: maze.set_wall(
-              origin,
-              getDirection(origin, destination)!!,
-              false,
-            ),
-            state: {
-              phase: state.entries.length == 2 ? "done" : "iteration",
-              entries: state.entries
-                .filter((_, o) => o != id_first && o != id_second)
-                .concat([
-                  {
-                    set: [...first.set, ...second.set],
-                    neighbours: [
-                      ...first.neighbours,
-                      ...second.neighbours,
-                    ].filter(
-                      (neighbour) =>
-                        !first.set.find(
-                          (p) =>
-                            p.col == neighbour.col && p.row == neighbour.row,
-                        ) &&
-                        !second.set.find(
-                          (p) =>
-                            p.col == neighbour.col && p.row == neighbour.row,
-                        ),
-                    ),
-                  },
-                ]),
+          return [
+            {
+              maze: first.set.reduceRight(
+                (maze, p) => maze.set_cell(p, "first"),
+                maze,
+              ),
+              state: {
+                ...state,
+                subphase: "selection",
+              },
             },
-            done: state.entries.length == 2,
-          };
+
+            {
+              maze: first.neighbours.reduceRight(
+                (maze, p) => maze.set_cell(p, "neighbour"),
+                first.set.reduceRight(
+                  (maze, p) => maze.set_cell(p, "first"),
+                  maze,
+                ),
+              ),
+              state: {
+                ...state,
+                subphase: "neighbour",
+              },
+            },
+
+            {
+              maze: first.set.reduceRight(
+                (maze, p) => maze.set_cell(p, "first"),
+                maze.set_cell(destination, "neighbour"),
+              ),
+              state: {
+                ...state,
+                subphase: "random neighbour",
+              },
+            },
+            {
+              maze: second.set.reduceRight(
+                (maze, p) => maze.set_cell(p, "second"),
+                first.set.reduceRight(
+                  (maze, p) => maze.set_cell(p, "first"),
+                  maze,
+                ),
+              ),
+              state: {
+                ...state,
+                subphase: "randon neighbour entry",
+              },
+            },
+            {
+              maze: maze.set_wall(
+                origin,
+                getDirection(origin, destination)!!,
+                false,
+              ),
+              state: {
+                phase: state.entries.length == 2 ? "done" : "iteration",
+                entries: state.entries
+                  .filter((_, o) => o != id_first && o != id_second)
+                  .concat([
+                    {
+                      set: [...first.set, ...second.set],
+                      neighbours: [
+                        ...first.neighbours,
+                        ...second.neighbours,
+                      ].filter(
+                        (neighbour) =>
+                          !first.set.find(
+                            (p) =>
+                              p.col == neighbour.col && p.row == neighbour.row,
+                          ) &&
+                          !second.set.find(
+                            (p) =>
+                              p.col == neighbour.col && p.row == neighbour.row,
+                          ),
+                      ),
+                    },
+                  ]),
+                subphase: "clear wall",
+              },
+              done: state.entries.length == 2,
+            },
+          ];
 
         case "done":
-          return { maze, state, done: state.phase === "done" };
+          return [{ maze, state, done: state.phase === "done" }];
       }
     },
   };

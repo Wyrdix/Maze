@@ -10,7 +10,7 @@ export type MazeGenerator<
   next: (
     maze: Maze,
     state: State,
-  ) => { maze: Maze; state: State; done?: boolean };
+  ) => { maze: Maze; state: State; done?: boolean }[];
 };
 
 export function generate<
@@ -30,8 +30,8 @@ export function generate<
   while (!done) {
     let last = stack[stack.length - 1];
     let next = gen.next(last.maze, last.state);
-    done = next.done ?? false;
-    stack.push({ maze: next.maze, state: next.state });
+    done = next[next.length - 1].done ?? false;
+    stack.push(...next.map((v) => ({ state: v.state, maze: v.maze })));
   }
   return stack;
 }

@@ -11,9 +11,12 @@
   import { generate } from "$lib/generator";
 
   const gen = Generator({});
-  const initial: DefaultMazeImplementation<boolean, boolean> = buildMaze(
+  const initial: DefaultMazeImplementation<
+    "first" | "second" | "neighbour" | false,
+    boolean
+  > = buildMaze(
     [10, 10],
-    () => false,
+    (): "first" | "second" | "neighbour" | false => false,
     () => false,
   );
   const mazes = generate<{}, State, SpecializedMaze, SpecializedGenerator>(
@@ -25,10 +28,17 @@
 <Card class="relative w-full h-full max-w-none max-h-none flex flex-row">
   <div class="flex items-center p-10 mx-auto">
     <MazeViewer {mazes}>
-      {#snippet cellViewer()}
+      {#snippet cellViewer(maze, pos, cell)}
         <div
           class="w-full h-full min-h-0 min-w-0 bg-gray-300 dark:bg-gray-700 rounded-md"
-        ></div>
+        >
+          <div
+            class="w-full h-full transition-all"
+            class:bg-blue-400={cell == "first"}
+            class:bg-red-400={cell == "second"}
+            class:bg-yellow-400={cell == "neighbour"}
+          ></div>
+        </div>
       {/snippet}
     </MazeViewer>
   </div>
