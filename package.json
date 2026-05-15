@@ -9,7 +9,8 @@
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"postinstall": "cp ./node_modules/gif.js/dist/gif.js public/gif.js"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.1",
@@ -18,6 +19,7 @@
 		"@tailwindcss/forms": "^0.5.11",
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.2.2",
+		"@types/gif.js": "^0.2.5",
 		"@types/node": "^25.7.0",
 		"flowbite": "^4.0.1",
 		"flowbite-svelte": "^1.33.1",
@@ -25,6 +27,13 @@
 		"svelte-check": "^4.4.6",
 		"tailwindcss": "^4.2.2",
 		"typescript": "^6.0.2",
-		"vite": "^8.0.7"
+		"vite": "^8.0.7",
+		"vite-multiple-assets": "^2.2.6"
+	},
+	"dependencies": {
+		"gif.js": "^0.2.0",
+		"html2canvas-pro": "^2.0.2",
+		"lucide": "^1.16.0",
+		"lucide-svelte": "^1.0.1"
 	}
 }

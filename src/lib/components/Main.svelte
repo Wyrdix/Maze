@@ -15,7 +15,7 @@
     "first" | "second" | "neighbour" | false,
     boolean
   > = buildMaze(
-    [10, 10],
+    [3, 3],
     (): "first" | "second" | "neighbour" | false => false,
     () => false,
   );
