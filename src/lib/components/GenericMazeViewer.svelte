@@ -1,5 +1,9 @@
 <script lang="ts" generics="Cell,Wall">
-  import type { DefaultMazeImplementation, Position } from "$lib/maze";
+  import {
+    buildMaze,
+    DefaultMazeImplementation,
+    type Position,
+  } from "$lib/maze";
   import { Button, ButtonGroup, Range } from "flowbite-svelte";
   import html2canvas from "html2canvas-pro";
   import GIF from "gif.js";
@@ -30,6 +34,12 @@
     >;
   } = $props();
 
+  $effect(() => {
+    mazes;
+    index = 0;
+    speed = 0;
+  });
+
   let timeout: NodeJS.Timeout | null = null;
   function step() {
     index += Math.sign(speed);
@@ -50,7 +60,14 @@
     if (speed < 0 && index <= 0) speed = 0;
   });
 
-  let maze = $derived(mazes[Math.max(0, Math.min(mazes.length - 1, index))]);
+  let maze = $derived(
+    mazes[Math.max(0, Math.min(mazes.length - 1, index))] ??
+      buildMaze(
+        [1, 1],
+        (): "first" | "second" | "neighbour" | false => false,
+        () => false,
+      ),
+  );
   let mazeDiv: HTMLDivElement | undefined = $state();
 
   let isRecording = false;
@@ -180,7 +197,7 @@
         {/if}
       </Button>
       <Button
-        disabled={index >= mazes.length - 1}
+        disabled={index > mazes.length - 1}
         onclick={() => {
           index++;
           speed = 0;

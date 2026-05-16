@@ -112,7 +112,6 @@
                   deepSearch(newFilter, true),
                   newFilter[1],
                 ];
-                console.log(parentNewFilter);
                 filter = parentNewFilter;
               }
             }
