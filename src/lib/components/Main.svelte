@@ -13,8 +13,8 @@
     type State,
   } from "$lib/generators/generation_by_sets";
   import { Factory, FilePlay, RefreshCcw, Settings } from "lucide-svelte";
-  import type { TreeValue } from "./TreeBoolean.svelte";
-  import TreeBoolean from "./TreeBoolean.svelte";
+  import type { TreeValue } from "./general/TreeBoolean.svelte";
+  import TreeBoolean from "./general/TreeBoolean.svelte";
 
   import { onMount } from "svelte";
   import Worker from "$lib/maze_generation.worker?worker";
