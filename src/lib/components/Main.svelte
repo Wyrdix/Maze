@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { buildMaze, DefaultMazeImplementation, type Maze } from "$lib/maze";
   import {
     Accordion,
     AccordionItem,
@@ -10,12 +9,9 @@
   } from "flowbite-svelte";
   import MazeViewer from "./GenericMazeViewer.svelte";
   import {
-    Generator,
-    type SpecializedGenerator,
     type SpecializedMaze,
     type State,
   } from "$lib/generators/generation_by_sets";
-  import { generate } from "$lib/generator";
   import { Factory, FilePlay, RefreshCcw, Settings } from "lucide-svelte";
   import type { TreeValue } from "./TreeBoolean.svelte";
   import TreeBoolean from "./TreeBoolean.svelte";
@@ -24,7 +20,7 @@
   import Worker from "$lib/maze_generation.worker?worker";
 
   let rows = $state(3);
-  let cols = $state(3);
+  let columns = $state(3);
 
   let worker: Worker;
 
@@ -46,14 +42,18 @@
   let mazes: { maze: SpecializedMaze; state: State }[] = $state([]);
   let generating = $state(false);
   function generateMaze() {
-    worker.postMessage({ rows, cols });
+    worker.postMessage({ rows, columns });
     worker.onmessage = (event) => {
       const data = event.data as (Pick<
         SpecializedMaze,
         "dimensions" | "walls" | "cells"
       > & { state: State })[];
       mazes = data.map((v) => ({
-        maze: new DefaultMazeImplementation(v.dimensions, v.cells, v.walls),
+        maze: {
+          dimensions: v.dimensions,
+          cells: v.cells,
+          walls: v.walls,
+        } satisfies SpecializedMaze,
         state: v.state,
       }));
     };
@@ -148,7 +148,7 @@
                 aria-describedby="helper-text-explanation"
                 placeholder="90210"
                 required
-                bind:value={cols}
+                bind:value={columns}
               />
             </form>
           </AccordionItem>

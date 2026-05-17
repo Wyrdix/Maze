@@ -1,9 +1,5 @@
 <script lang="ts" generics="Cell,Wall">
-  import {
-    buildMaze,
-    DefaultMazeImplementation,
-    type Position,
-  } from "$lib/maze";
+  import { cell, createMaze, wall, type Maze, type Position } from "$lib/maze";
   import { Button, ButtonGroup, Range } from "flowbite-svelte";
   import html2canvas from "html2canvas-pro";
   import GIF from "gif.js";
@@ -26,12 +22,10 @@
     speed = $bindable(0),
     cellViewer,
   }: {
-    mazes: DefaultMazeImplementation<Cell, Wall>[];
+    mazes: Maze<Cell, Wall>[];
     index?: number;
     speed?: number;
-    cellViewer: Snippet<
-      [DefaultMazeImplementation<Cell, Wall>, Position, Cell]
-    >;
+    cellViewer: Snippet<[Maze<Cell, Wall>, Position, Cell]>;
   } = $props();
 
   $effect(() => {
@@ -62,8 +56,8 @@
 
   let maze = $derived(
     mazes[Math.max(0, Math.min(mazes.length - 1, index))] ??
-      buildMaze(
-        [1, 1],
+      createMaze(
+        { rows: 1, columns: 1 },
         (): "first" | "second" | "neighbour" | false => false,
         () => false,
       ),
@@ -127,22 +121,22 @@
 <div class="flex flex-col w-full h-full items-center">
   {#key maze}
     <div bind:this={mazeDiv} class="flex flex-col h-full bg-stone-500">
-      {#each Array.from({ length: maze.dimensions[0] }, (_, row) => maze.dimensions[0] - 1 - row) as row}
+      {#each Array.from({ length: maze.dimensions.rows }, (_, row) => maze.dimensions.rows - 1 - row) as row}
         <div
           class="flex flex-row"
-          style:height={`${100 / maze.dimensions[0]}%`}
+          style:height={`${100 / maze.dimensions.rows}%`}
         >
-          {#each Array.from({ length: maze.dimensions[1] }, (_, col) => col) as col}
+          {#each Array.from({ length: maze.dimensions.columns }, (_, col) => col) as col}
             {@const position: Position = { row, col }}
             <div
               class="relative aspect-square"
-              style:max-width={`${100 / maze.dimensions[1]}%`}
-              class:border-l-1={maze.wall(position, "west")}
-              class:border-t-1={maze.wall(position, "north")}
-              class:border-r-1={maze.wall(position, "east")}
-              class:border-b-1={maze.wall(position, "south")}
+              style:max-width={`${100 / maze.dimensions.columns}%`}
+              class:border-l-1={wall(maze, position, "west")}
+              class:border-t-1={wall(maze, position, "north")}
+              class:border-r-1={wall(maze, position, "east")}
+              class:border-b-1={wall(maze, position, "south")}
             >
-              {@render cellViewer(maze, position, maze.cell(position))}
+              {@render cellViewer(maze, position, cell(maze, position))}
             </div>
           {/each}
         </div>

@@ -1,24 +1,18 @@
-import type { Maze as MazeType } from "./maze";
+import type { Maze } from "./maze";
 
-export type MazeGenerator<
-  Config,
-  State,
-  Maze extends MazeType<any, any, Maze>,
-> = {
-  initial_state: (maze: Maze) => State;
+export type MazeGenerator<Config, State, Cell, Wall> = {
+  initial_state: (maze: Maze<Cell, Wall>) => State;
   config: Config;
   next: (
-    maze: Maze,
+    maze: Maze<Cell, Wall>,
     state: State,
-  ) => { maze: Maze; state: State; done?: boolean }[];
+  ) => { maze: Maze<Cell, Wall>; state: State; done?: boolean }[];
 };
 
-export function generate<
-  Config,
-  State,
-  Maze extends MazeType<any, any, Maze>,
-  Generator extends MazeGenerator<Config, State, Maze>,
->(gen: Generator, maze: Maze): { maze: Maze; state: State }[] {
+export function generate<Config, State, Cell, Wall>(
+  gen: MazeGenerator<Config, State, Cell, Wall>,
+  maze: Maze<Cell, Wall>,
+): { maze: Maze<Cell, Wall>; state: State }[] {
   let stack = [
     {
       maze: maze,

@@ -1,10 +1,12 @@
 import type { MazeGenerator } from "$lib/generator";
 import {
   applyDirection,
-  DefaultMazeImplementation,
   direction,
   getDirection,
+  set_cell,
+  set_wall,
   type Direction,
+  type Maze,
   type Maze as MazeType,
   type Position,
 } from "$lib/maze";
@@ -25,7 +27,7 @@ export type State = {
 
 export type Config = {};
 
-export type SpecializedMaze = DefaultMazeImplementation<
+export type SpecializedMaze = Maze<
   "first" | "second" | "neighbour" | false,
   boolean
 >;
@@ -33,7 +35,8 @@ export type SpecializedMaze = DefaultMazeImplementation<
 export type SpecializedGenerator = MazeGenerator<
   Config,
   State,
-  SpecializedMaze
+  "first" | "second" | "neighbour" | false,
+  boolean
 >;
 
 export function Generator(config: Config): SpecializedGenerator {
@@ -41,9 +44,9 @@ export function Generator(config: Config): SpecializedGenerator {
     config,
     initial_state(maze) {
       return {
-        entries: Array.from({ length: maze.dimensions[0] })
+        entries: Array.from({ length: maze.dimensions.rows })
           .flatMap((_, x) =>
-            Array.from({ length: maze.dimensions[1] }).map((_, y) => ({
+            Array.from({ length: maze.dimensions.columns }).map((_, y) => ({
               row: x,
               col: y,
             })),
@@ -56,8 +59,8 @@ export function Generator(config: Config): SpecializedGenerator {
                 (v) =>
                   v.col >= 0 &&
                   v.row >= 0 &&
-                  v.row < maze.dimensions[0] &&
-                  v.col < maze.dimensions[1],
+                  v.row < maze.dimensions.rows &&
+                  v.col < maze.dimensions.columns,
               ),
           })),
         phase: "initial",
@@ -68,16 +71,18 @@ export function Generator(config: Config): SpecializedGenerator {
         case "initial":
           return [
             {
-              maze: Array.from({ length: maze.dimensions[0] })
+              maze: Array.from({ length: maze.dimensions.rows })
                 .flatMap((_, row) =>
-                  Array.from({ length: maze.dimensions[1] }).map((_, col) => ({
-                    row,
-                    col,
-                  })),
+                  Array.from({ length: maze.dimensions.columns }).map(
+                    (_, col) => ({
+                      row,
+                      col,
+                    }),
+                  ),
                 )
                 .reduce((maze, pos) => {
                   return (Object.keys(direction) as Direction[]).reduce(
-                    (maze, dir) => maze.set_wall(pos, dir, true),
+                    (maze, dir) => set_wall(maze, pos, dir, true),
                     maze,
                   );
                 }, maze),
@@ -112,7 +117,7 @@ export function Generator(config: Config): SpecializedGenerator {
           return [
             {
               maze: first.set.reduceRight(
-                (maze, p) => maze.set_cell(p, "first"),
+                (maze, p) => set_cell(maze, p, "first"),
                 maze,
               ),
               state: {
@@ -123,9 +128,9 @@ export function Generator(config: Config): SpecializedGenerator {
 
             {
               maze: first.neighbours.reduceRight(
-                (maze, p) => maze.set_cell(p, "neighbour"),
+                (maze, p) => set_cell(maze, p, "neighbour"),
                 first.set.reduceRight(
-                  (maze, p) => maze.set_cell(p, "first"),
+                  (maze, p) => set_cell(maze, p, "first"),
                   maze,
                 ),
               ),
@@ -137,8 +142,8 @@ export function Generator(config: Config): SpecializedGenerator {
 
             {
               maze: first.set.reduceRight(
-                (maze, p) => maze.set_cell(p, "first"),
-                maze.set_cell(destination, "neighbour"),
+                (maze, p) => set_cell(maze, p, "first"),
+                set_cell(maze, destination, "neighbour"),
               ),
               state: {
                 ...state,
@@ -147,9 +152,9 @@ export function Generator(config: Config): SpecializedGenerator {
             },
             {
               maze: second.set.reduceRight(
-                (maze, p) => maze.set_cell(p, "second"),
+                (maze, p) => set_cell(maze, p, "second"),
                 first.set.reduceRight(
-                  (maze, p) => maze.set_cell(p, "first"),
+                  (maze, p) => set_cell(maze, p, "first"),
                   maze,
                 ),
               ),
@@ -159,7 +164,8 @@ export function Generator(config: Config): SpecializedGenerator {
               },
             },
             {
-              maze: maze.set_wall(
+              maze: set_wall(
+                maze,
                 origin,
                 getDirection(origin, destination)!!,
                 false,

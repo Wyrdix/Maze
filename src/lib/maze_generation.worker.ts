@@ -5,24 +5,18 @@ import {
   type SpecializedMaze,
   type State,
 } from "./generators/generation_by_sets";
-import { buildMaze, type DefaultMazeImplementation } from "./maze";
+import { createMaze, type Maze } from "./maze";
 
 self.onmessage = (event) => {
-  const data = event.data as { rows: number; cols: number };
+  const data = event.data as { rows: number; columns: number };
   const gen = Generator({});
-  const initial: DefaultMazeImplementation<
-    "first" | "second" | "neighbour" | false,
-    boolean
-  > = buildMaze(
-    [data.rows, data.cols],
-    (): "first" | "second" | "neighbour" | false => false,
+  const initial: SpecializedMaze = createMaze(
+    { rows: data.rows, columns: data.columns },
+    () => false,
     () => false,
   );
 
-  const mazes = generate<{}, State, SpecializedMaze, SpecializedGenerator>(
-    gen,
-    initial,
-  );
+  const mazes = generate(gen, initial);
 
   self.postMessage(
     mazes.map((v) => ({

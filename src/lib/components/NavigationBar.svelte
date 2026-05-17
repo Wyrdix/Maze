@@ -2,7 +2,6 @@
   import {
     Navbar,
     NavBrand,
-    NavLi,
     NavUl,
     NavHamburger,
     DarkMode,
