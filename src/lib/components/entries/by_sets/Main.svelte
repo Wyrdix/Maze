@@ -7,17 +7,17 @@
     Input,
     Label,
   } from "flowbite-svelte";
-  import MazeViewer from "./GenericMazeViewer.svelte";
+  import MazeViewer from "../../GenericMazeViewer.svelte";
   import {
     type SpecializedMaze,
     type State,
   } from "$lib/generators/generation_by_sets";
   import { Factory, FilePlay, RefreshCcw, Settings } from "lucide-svelte";
-  import type { TreeValue } from "./general/TreeBoolean.svelte";
-  import TreeBoolean from "./general/TreeBoolean.svelte";
+  import type { TreeValue } from "../../general/TreeBoolean.svelte";
+  import TreeBoolean from "../../general/TreeBoolean.svelte";
 
   import { onMount } from "svelte";
-  import Worker from "$lib/maze_generation.worker?worker";
+  import Worker from "$lib/generators/maze_generation_by_sets.worker?worker";
 
   let rows = $state(3);
   let columns = $state(3);

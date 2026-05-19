@@ -2,7 +2,9 @@ import type { MazeGenerator } from "$lib/generator";
 import {
   applyDirection,
   direction,
+  directions,
   getDirection,
+  getNeighbours,
   set_cell,
   set_wall,
   type Direction,
@@ -53,15 +55,7 @@ export function Generator(config: Config): SpecializedGenerator {
           )
           .map((pos) => ({
             set: [pos],
-            neighbours: (Object.keys(direction) as Direction[])
-              .map((dir) => applyDirection(pos, direction[dir]))
-              .filter(
-                (v) =>
-                  v.col >= 0 &&
-                  v.row >= 0 &&
-                  v.row < maze.dimensions.rows &&
-                  v.col < maze.dimensions.columns,
-              ),
+            neighbours: getNeighbours(maze, pos),
           })),
         phase: "initial",
       };
@@ -81,7 +75,7 @@ export function Generator(config: Config): SpecializedGenerator {
                   ),
                 )
                 .reduce((maze, pos) => {
-                  return (Object.keys(direction) as Direction[]).reduce(
+                  return directions.reduce(
                     (maze, dir) => set_wall(maze, pos, dir, true),
                     maze,
                   );
@@ -108,11 +102,9 @@ export function Generator(config: Config): SpecializedGenerator {
           )!!;
           let second = state.entries[id_second];
 
-          let origin = (Object.keys(direction) as Direction[])
-            .map((dir) => applyDirection(destination, direction[dir]))
-            .filter((origin) =>
-              first.set.find((p) => p.col == origin.col && p.row == origin.row),
-            )[0];
+          let origin = getNeighbours(maze, destination).filter((origin) =>
+            first.set.find((p) => p.col == origin.col && p.row == origin.row),
+          )[0];
 
           return [
             {

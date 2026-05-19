@@ -1,3 +1,5 @@
+import type { Cell } from "./generators/generation_by_tree";
+
 export type Vector = { row: number; col: number };
 export type Position = Vector;
 
@@ -99,6 +101,25 @@ export function set_wall<Cell, Wall>(
   };
 }
 
+export function getOpposite(direction: Direction): Direction {
+  switch (direction) {
+    case "north":
+      return "south";
+    case "east":
+      return "west";
+    case "south":
+      return "north";
+    case "west":
+      return "east";
+  }
+}
+
+export function getDirectionFromMod(vector: Vector): Direction | undefined {
+  return Object.entries(direction).find(
+    ([key, value]) => value.col == vector.col && value.row == vector.row,
+  )?.[0] as Direction | undefined;
+}
+
 export function getDirection(
   from: Position,
   to: Position,
@@ -114,6 +135,21 @@ export function getDirection(
 
 export function applyDirection(pos: Position, normal: Vector): Position {
   return { row: pos.row + normal.row, col: pos.col + normal.col };
+}
+
+export function getNeighbours(
+  maze: Maze<unknown, unknown>,
+  position: Position,
+): Position[] {
+  return directions
+    .map((dir) => applyDirection(position, direction[dir]))
+    .filter(
+      (v) =>
+        v.col >= 0 &&
+        v.row >= 0 &&
+        v.row < maze.dimensions.rows &&
+        v.col < maze.dimensions.columns,
+    );
 }
 
 export function createMaze<Cell, Wall>(

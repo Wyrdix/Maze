@@ -1,11 +1,6 @@
-import { generate } from "./generator";
-import {
-  Generator,
-  type SpecializedGenerator,
-  type SpecializedMaze,
-  type State,
-} from "./generators/generation_by_sets";
-import { createMaze, type Maze } from "./maze";
+import { generate } from "../generator";
+import { Generator, type SpecializedMaze } from "./generation_by_sets";
+import { createMaze } from "../maze";
 
 self.onmessage = (event) => {
   const data = event.data as { rows: number; columns: number };
