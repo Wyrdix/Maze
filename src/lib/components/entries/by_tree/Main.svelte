@@ -11,12 +11,20 @@
     type SpecializedMaze,
     type State,
   } from "$lib/generators/generation_by_tree";
-  import { Circle, Cross, Factory, RefreshCcw, Settings } from "lucide-svelte";
+  import {
+    Circle,
+    Cross,
+    Factory,
+    FilePlay,
+    RefreshCcw,
+    Settings,
+  } from "lucide-svelte";
   import type { TreeValue } from "../../general/TreeBoolean.svelte";
 
   import { onMount } from "svelte";
   import Worker from "$lib/generators/maze_generation_by_tree.worker?worker";
   import { getDirectionFromMod } from "$lib/maze";
+  import TreeBoolean from "../../general/TreeBoolean.svelte";
 
   let rows = $state(3);
   let columns = $state(3);
@@ -30,11 +38,8 @@
   let animationsStepFilter: TreeValue<boolean> = $state([
     false,
     {
-      selection: false,
-      neighbour: false,
-      "random neighbour": false,
-      "randon neighbour entry": false,
-      "clear wall": false,
+      pop: false,
+      descend: false,
     },
   ] as const);
 
@@ -57,12 +62,21 @@
       }));
     };
   }
+
+  let filtered_mazes = $derived(
+    mazes.filter(
+      (v) =>
+        v.state.phase != "iteration" ||
+        v.state.subphase == null ||
+        ((animationsStepFilter as any)[1][v.state.subphase] as boolean),
+    ),
+  );
 </script>
 
 <!-- Center MazeViewer -->
 <div class="relative mx-auto flex-1">
   <div class="flex items-center p-10 h-full w-full">
-    <MazeViewer mazes={mazes.map((v) => v.maze)}>
+    <MazeViewer mazes={filtered_mazes.map((v) => v.maze)}>
       {#snippet cellViewer(maze, pos, cell)}
         {@const paths = [
           ...(cell.children || []),
@@ -154,6 +168,24 @@
               bind:value={columns}
             />
           </form>
+        </AccordionItem>
+        <AccordionItem>
+          {#snippet header()}
+            <h3 class="**:inline *:align-text-bottom">
+              <FilePlay /> Animation
+            </h3>
+          {/snippet}
+
+          <TreeBoolean
+            bind:filter={animationsStepFilter}
+            name={[
+              "",
+              {
+                pop: "Cell pop",
+                descend: "Cell descend",
+              },
+            ]}
+          />
         </AccordionItem>
       </Accordion>
     </AccordionItem>

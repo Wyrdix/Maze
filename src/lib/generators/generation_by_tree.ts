@@ -13,7 +13,7 @@ import {
 
 export type State = {
   phase: "initial" | "iteration" | "done";
-  subphase?: "pop" | "descend" | "normal";
+  subphase?: "pop" | "descend";
   stack: Position[];
 };
 
@@ -167,7 +167,7 @@ export function Generator(config: Config): SpecializedGenerator {
           state: {
             phase: "iteration",
             stack: [randomNeighbour, ...stack],
-            subphase: "normal",
+            subphase: undefined,
           },
         },
       ];
