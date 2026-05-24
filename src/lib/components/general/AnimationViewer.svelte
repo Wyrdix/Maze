@@ -38,6 +38,7 @@
   }
 
   $effect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     frames;
     index = 0;
     speed = 0;

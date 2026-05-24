@@ -7,22 +7,41 @@
     if (root === oldV) return newV as T;
     if (typeof root !== "object") return root;
     return Object.fromEntries(
-      Object.entries(root as {}).map(([k, v]): [string, any] => [
+      Object.entries(root as object).map(([k, v]): [string, unknown] => [
         k,
         deepReplace(v, oldV, newV),
       ]),
     ) as T;
   }
 
-  function deepSearch(root: any, value: unknown): boolean {
+  function deepSearch(root: unknown, value: unknown): boolean {
     if (root === value) return true;
     if (typeof root !== "object") return false;
-    return Object.values(root as {}).find((v) => deepSearch(v, value)) != null;
+    return (
+      Object.values(root as object).find((v) => deepSearch(v, value)) != null
+    );
+  }
+
+  export function lookup<T>(
+    value: TreeValue<T>,
+    keys: string[],
+  ): T | undefined {
+    if (!Array.isArray(value)) {
+      return keys.length === 0 ? value : undefined;
+    }
+    if (keys.length === 0) {
+      return value[0];
+    }
+
+    const recursive_value = value[1][keys[0]];
+    if (recursive_value == null) return undefined;
+
+    return lookup(recursive_value, keys.slice(1));
   }
 </script>
 
 <script lang="ts">
-  import { Accordion, AccordionItem, Checkbox, Input } from "flowbite-svelte";
+  import { Accordion, AccordionItem, Checkbox } from "flowbite-svelte";
   import StepFilter from "./TreeBoolean.svelte";
 
   let {
@@ -46,7 +65,7 @@
   >
 {:else}
   <Accordion flush>
-    {#each Object.keys(filter[1]) as key}
+    {#each Object.keys(filter[1]) as key (key)}
       {@const name_value = name[1][key]}
       {@const filter_value = filter[1][key]}
 

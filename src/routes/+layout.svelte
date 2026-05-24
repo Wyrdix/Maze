@@ -1,14 +1,6 @@
 <script lang="ts">
   import "./layout.css";
   import favicon from "$lib/assets/favicon.svg";
-  import {
-    DarkMode,
-    Navbar,
-    NavBrand,
-    NavLi,
-    NavUl,
-    ToolbarButton,
-  } from "flowbite-svelte";
   import NavigationBar from "$lib/components/NavigationBar.svelte";
 
   let { children } = $props();

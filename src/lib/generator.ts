@@ -13,7 +13,7 @@ export function generate<Config, State, Cell, Wall>(
   gen: MazeGenerator<Config, State, Cell, Wall>,
   maze: Maze<Cell, Wall>,
 ): { maze: Maze<Cell, Wall>; state: State }[] {
-  let stack = [
+  const stack = [
     {
       maze: maze,
       state: gen.initial_state(maze),
@@ -22,8 +22,8 @@ export function generate<Config, State, Cell, Wall>(
 
   let done = false;
   while (!done) {
-    let last = stack[stack.length - 1];
-    let next = gen.next(last.maze, last.state);
+    const last = stack[stack.length - 1];
+    const next = gen.next(last.maze, last.state);
     done = next[next.length - 1].done ?? false;
     stack.push(...next.map((v) => ({ state: v.state, maze: v.maze })));
   }

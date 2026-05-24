@@ -1,15 +1,11 @@
 import type { MazeGenerator } from "$lib/generator";
 import {
-  applyDirection,
-  direction,
   directions,
   getDirection,
   getNeighbours,
   set_cell,
   set_wall,
-  type Direction,
   type Maze,
-  type Maze as MazeType,
   type Position,
 } from "$lib/maze";
 
@@ -27,6 +23,7 @@ export type State = {
   }[];
 };
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type Config = {};
 
 export type SpecializedMaze = Maze<
@@ -86,23 +83,23 @@ export function Generator(config: Config): SpecializedGenerator {
               },
             },
           ];
-        case "iteration":
-          let id_first = Math.floor(Math.random() * state.entries.length);
-          let first = state.entries[id_first];
+        case "iteration": {
+          const id_first = Math.floor(Math.random() * state.entries.length);
+          const first = state.entries[id_first];
 
-          let destination =
+          const destination =
             first.neighbours[
               Math.floor(Math.random() * first.neighbours.length)
             ];
 
-          let id_second = state.entries.findIndex((entry) =>
+          const id_second = state.entries.findIndex((entry) =>
             entry.set.find(
               (p) => p.col == destination.col && p.row == destination.row,
             ),
-          )!!;
-          let second = state.entries[id_second];
+          )!;
+          const second = state.entries[id_second];
 
-          let origin = getNeighbours(maze, destination).filter((origin) =>
+          const origin = getNeighbours(maze, destination).filter((origin) =>
             first.set.find((p) => p.col == origin.col && p.row == origin.row),
           )[0];
 
@@ -159,7 +156,7 @@ export function Generator(config: Config): SpecializedGenerator {
               maze: set_wall(
                 maze,
                 origin,
-                getDirection(origin, destination)!!,
+                getDirection(origin, destination)!,
                 false,
               ),
               state: {
@@ -190,7 +187,7 @@ export function Generator(config: Config): SpecializedGenerator {
               done: state.entries.length == 2,
             },
           ];
-
+        }
         case "done":
           return [{ maze, state, done: state.phase === "done" }];
       }

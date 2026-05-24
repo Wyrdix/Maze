@@ -1,9 +1,5 @@
 import { generate } from "../generator";
-import {
-  Generator,
-  type Cell,
-  type SpecializedMaze,
-} from "./generation_by_tree";
+import { Generator, type SpecializedMaze } from "./generation_by_tree";
 import { createMaze } from "../maze";
 
 self.onmessage = (event) => {

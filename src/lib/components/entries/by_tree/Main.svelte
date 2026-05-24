@@ -24,7 +24,7 @@
   import { onMount } from "svelte";
   import Worker from "$lib/generators/maze_generation_by_tree.worker?worker";
   import { getDirectionFromMod } from "$lib/maze";
-  import TreeBoolean from "../../general/TreeBoolean.svelte";
+  import TreeBoolean, { lookup } from "../../general/TreeBoolean.svelte";
 
   let rows = $state(3);
   let columns = $state(3);
@@ -68,7 +68,7 @@
       (v) =>
         v.state.phase != "iteration" ||
         v.state.subphase == null ||
-        ((animationsStepFilter as any)[1][v.state.subphase] as boolean),
+        lookup(animationsStepFilter, ["iteration", v.state.subphase]),
     ),
   );
 </script>
@@ -77,7 +77,7 @@
 <div class="relative mx-auto flex-1">
   <div class="flex items-center p-10 h-full w-full">
     <MazeViewer mazes={filtered_mazes.map((v) => v.maze)}>
-      {#snippet cellViewer(maze, pos, cell)}
+      {#snippet cellViewer(_maze, _pos, cell)}
         {@const paths = [
           ...(cell.children || []),
           ...(cell.parent ? [cell.parent] : []),
@@ -86,8 +86,8 @@
           class="w-full h-full min-h-0 min-w-0 bg-gray-300 dark:bg-gray-700 rounded-md relative"
         >
           <div class="absolute w-full h-full grid grid-cols-3 grid-rows-3">
-            {#each [1, 0, -1] as ymod}
-              {#each [-1, 0, 1] as xmod}
+            {#each [1, 0, -1] as ymod (ymod)}
+              {#each [-1, 0, 1] as xmod (xmod)}
                 {@const dir = getDirectionFromMod({ row: ymod, col: xmod })}
                 <div
                   class={`${(dir != null && paths.find((o) => o == dir) != null) || ((paths.length != 0 || cell.top) && ymod == 0 && xmod == 0) ? (cell.highlight != null && paths.includes(cell.highlight) ? "bg-stone-800" : "bg-white") : ""}`}

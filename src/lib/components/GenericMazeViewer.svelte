@@ -18,12 +18,12 @@
 
 <AnimationViewer frames={mazes} {index} {speed}>
   {#snippet display(maze)}
-    {#each Array.from({ length: maze.dimensions.rows }, (_, row) => maze.dimensions.rows - 1 - row) as row}
+    {#each Array.from({ length: maze.dimensions.rows }, (_, row) => maze.dimensions.rows - 1 - row) as row (row)}
       <div
         class="flex flex-row"
         style:height={`${100 / maze.dimensions.rows}%`}
       >
-        {#each Array.from({ length: maze.dimensions.columns }, (_, col) => col) as col}
+        {#each Array.from({ length: maze.dimensions.columns }, (_, col) => col) as col (col)}
           {@const position: Position = { row, col }}
           <div
             class="relative aspect-square"

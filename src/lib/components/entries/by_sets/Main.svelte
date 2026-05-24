@@ -3,7 +3,6 @@
     Accordion,
     AccordionItem,
     Button,
-    Card,
     Input,
     Label,
   } from "flowbite-svelte";
@@ -14,7 +13,7 @@
   } from "$lib/generators/generation_by_sets";
   import { Factory, FilePlay, RefreshCcw, Settings } from "lucide-svelte";
   import type { TreeValue } from "../../general/TreeBoolean.svelte";
-  import TreeBoolean from "../../general/TreeBoolean.svelte";
+  import TreeBoolean, { lookup } from "../../general/TreeBoolean.svelte";
 
   import { onMount } from "svelte";
   import Worker from "$lib/generators/maze_generation_by_sets.worker?worker";
@@ -64,7 +63,7 @@
       (v) =>
         v.state.phase != "iteration" ||
         v.state.subphase == null ||
-        ((animationsStepFilter as any)[1][v.state.subphase] as boolean),
+        lookup(animationsStepFilter, ["iteration", v.state.subphase]),
     ),
   );
 </script>
@@ -73,7 +72,7 @@
 <div class="relative mx-auto flex-1">
   <div class="flex items-center p-10 h-full w-full">
     <MazeViewer mazes={filtered_mazes.map((v) => v.maze)}>
-      {#snippet cellViewer(maze, pos, cell)}
+      {#snippet cellViewer(_maze, _pos, cell)}
         <div
           class="w-full h-full min-h-0 min-w-0 bg-gray-300 dark:bg-gray-700 rounded-md"
         >

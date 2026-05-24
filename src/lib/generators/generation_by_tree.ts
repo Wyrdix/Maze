@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { MazeGenerator } from "$lib/generator";
 import {
   cell,
@@ -59,7 +60,7 @@ export function Generator(config: Config): SpecializedGenerator {
         ];
       }
 
-      const top = stack[0]!!;
+      const top = stack[0]!;
 
       const neighbours = getNeighbours(maze, top).filter(
         (position) => !cell(maze, position).visited,
@@ -111,7 +112,7 @@ export function Generator(config: Config): SpecializedGenerator {
       const randomNeighbour =
         neighbours[Math.floor(Math.random() * neighbours.length)];
 
-      const direction = getDirection(top, randomNeighbour)!!;
+      const direction = getDirection(top, randomNeighbour)!;
 
       const topCell = cell(maze, top);
       return [

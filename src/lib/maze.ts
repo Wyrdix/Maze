@@ -1,5 +1,3 @@
-import type { Cell } from "./generators/generation_by_tree";
-
 export type Vector = { row: number; col: number };
 export type Position = Vector;
 
@@ -116,7 +114,7 @@ export function getOpposite(direction: Direction): Direction {
 
 export function getDirectionFromMod(vector: Vector): Direction | undefined {
   return Object.entries(direction).find(
-    ([key, value]) => value.col == vector.col && value.row == vector.row,
+    ([, value]) => value.col == vector.col && value.row == vector.row,
   )?.[0] as Direction | undefined;
 }
 
