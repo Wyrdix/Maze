@@ -6,25 +6,19 @@
     Input,
     Label,
   } from "flowbite-svelte";
-  import MazeViewer from "../../GenericMazeViewer.svelte";
+  import MazeViewer from "../../../components/GenericMazeViewer.svelte";
   import {
     type SpecializedMaze,
     type State,
-  } from "$lib/generators/generation_by_tree";
-  import {
-    Circle,
-    Cross,
-    Factory,
-    FilePlay,
-    RefreshCcw,
-    Settings,
-  } from "lucide-svelte";
-  import type { TreeValue } from "../../general/TreeBoolean.svelte";
+  } from "$lib/generators/generation_by_sets";
+  import { Factory, FilePlay, RefreshCcw, Settings } from "@lucide/svelte";
+  import type { TreeValue } from "../../../components/general/TreeBoolean.svelte";
+  import TreeBoolean, {
+    lookup,
+  } from "../../../components/general/TreeBoolean.svelte";
 
   import { onMount } from "svelte";
-  import Worker from "$lib/generators/maze_generation_by_tree.worker?worker";
-  import { getDirectionFromMod } from "$lib/maze";
-  import TreeBoolean, { lookup } from "../../general/TreeBoolean.svelte";
+  import Worker from "$lib/generators/maze_generation_by_sets.worker?worker";
 
   let rows = $state(3);
   let columns = $state(3);
@@ -38,8 +32,11 @@
   let animationsStepFilter: TreeValue<boolean> = $state([
     false,
     {
-      pop: false,
-      descend: false,
+      selection: false,
+      neighbour: false,
+      "random neighbour": false,
+      "randon neighbour entry": false,
+      "clear wall": false,
     },
   ] as const);
 
@@ -78,32 +75,15 @@
   <div class="flex items-center p-10 h-full w-full">
     <MazeViewer mazes={filtered_mazes.map((v) => v.maze)}>
       {#snippet cellViewer(_maze, _pos, cell)}
-        {@const paths = [
-          ...(cell.children || []),
-          ...(cell.parent ? [cell.parent] : []),
-        ]}
         <div
-          class="w-full h-full min-h-0 min-w-0 bg-gray-300 dark:bg-gray-700 rounded-md relative"
+          class="w-full h-full min-h-0 min-w-0 bg-gray-300 dark:bg-gray-700 rounded-md"
         >
-          <div class="absolute w-full h-full grid grid-cols-3 grid-rows-3">
-            {#each [1, 0, -1] as ymod (ymod)}
-              {#each [-1, 0, 1] as xmod (xmod)}
-                {@const dir = getDirectionFromMod({ row: ymod, col: xmod })}
-                <div
-                  class={`${(dir != null && paths.find((o) => o == dir) != null) || ((paths.length != 0 || cell.top) && ymod == 0 && xmod == 0) ? (cell.highlight != null && paths.includes(cell.highlight) ? "bg-stone-800" : "bg-white") : ""}`}
-                ></div>
-              {/each}
-            {/each}
-          </div>
           <div
-            class="absolute w-full h-full transition-all flex items-center justify-center"
-          >
-            {#if cell.top}
-              <Circle class="fill-brand" />
-            {:else if cell.unstack}
-              <Cross class="fill-brand-soft rotate-45" />
-            {/if}
-          </div>
+            class="w-full h-full transition-all"
+            class:bg-blue-400={cell == "first"}
+            class:bg-red-400={cell == "second"}
+            class:bg-yellow-400={cell == "neighbour"}
+          ></div>
         </div>
       {/snippet}
     </MazeViewer>
@@ -181,8 +161,11 @@
             name={[
               "",
               {
-                pop: "Cell pop",
-                descend: "Cell descend",
+                selection: "Cell selection",
+                neighbour: "Neighbour lookup",
+                "random neighbour": "Neighbour pick",
+                "randon neighbour entry": "Neighbour set lookup",
+                "clear wall": "Fusion",
               },
             ]}
           />

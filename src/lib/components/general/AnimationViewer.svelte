@@ -9,7 +9,7 @@
     Rewind,
     SkipBack,
     SkipForward,
-  } from "lucide-svelte";
+  } from "@lucide/svelte";
   import { tick, type Snippet } from "svelte";
 
   const SPEED = 200;
