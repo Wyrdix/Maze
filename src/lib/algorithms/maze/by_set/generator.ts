@@ -1,4 +1,4 @@
-import type { MazeGenerator } from "$lib/generator";
+import type { MazeGenerator } from "$lib/algorithms/maze/generator";
 import {
   directions,
   getDirection,
@@ -7,7 +7,7 @@ import {
   set_wall,
   type Maze,
   type Position,
-} from "$lib/maze";
+} from "$lib/algorithms/maze/maze";
 
 export type State = {
   phase: "initial" | "iteration" | "done";

@@ -6,19 +6,14 @@
     Input,
     Label,
   } from "flowbite-svelte";
-  import MazeViewer from "../../../components/GenericMazeViewer.svelte";
-  import {
-    type SpecializedMaze,
-    type State,
-  } from "$lib/generators/generation_by_sets";
+  import MazeViewer from "../MazeAnimationViewer.svelte";
+  import { type SpecializedMaze, type State } from "./generator";
   import { Factory, FilePlay, RefreshCcw, Settings } from "@lucide/svelte";
-  import type { TreeValue } from "../../../components/general/TreeBoolean.svelte";
-  import TreeBoolean, {
-    lookup,
-  } from "../../../components/general/TreeBoolean.svelte";
+  import type { TreeValue } from "../../../components/TreeBoolean.svelte";
+  import TreeBoolean, { lookup } from "../../../components/TreeBoolean.svelte";
 
   import { onMount } from "svelte";
-  import Worker from "$lib/generators/maze_generation_by_sets.worker?worker";
+  import Worker from "./worker?worker";
 
   let rows = $state(3);
   let columns = $state(3);

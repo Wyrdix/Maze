@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import type { MazeGenerator } from "$lib/generator";
+import type { MazeGenerator } from "$lib/algorithms/maze/generator";
 import {
   cell,
   getDirection,
@@ -10,7 +10,7 @@ import {
   type Direction,
   type Maze,
   type Position,
-} from "$lib/maze";
+} from "$lib/algorithms/maze/maze";
 
 export type State = {
   phase: "initial" | "iteration" | "done";

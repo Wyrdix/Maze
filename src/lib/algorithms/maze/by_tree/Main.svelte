@@ -6,11 +6,8 @@
     Input,
     Label,
   } from "flowbite-svelte";
-  import MazeViewer from "../../../components/GenericMazeViewer.svelte";
-  import {
-    type SpecializedMaze,
-    type State,
-  } from "$lib/generators/generation_by_tree";
+  import MazeViewer from "../MazeAnimationViewer.svelte";
+  import { type SpecializedMaze, type State } from "./generator";
   import {
     Circle,
     Cross,
@@ -19,14 +16,12 @@
     RefreshCcw,
     Settings,
   } from "@lucide/svelte";
-  import type { TreeValue } from "../../../components/general/TreeBoolean.svelte";
+  import type { TreeValue } from "../../../components/TreeBoolean.svelte";
 
   import { onMount } from "svelte";
-  import Worker from "$lib/generators/maze_generation_by_tree.worker?worker";
-  import { getDirectionFromMod } from "$lib/maze";
-  import TreeBoolean, {
-    lookup,
-  } from "../../../components/general/TreeBoolean.svelte";
+  import Worker from "./worker?worker";
+  import { getDirectionFromMod } from "$lib/algorithms/maze/maze";
+  import TreeBoolean, { lookup } from "../../../components/TreeBoolean.svelte";
 
   let rows = $state(3);
   let columns = $state(3);
@@ -101,9 +96,9 @@
             class="absolute w-full h-full transition-all flex items-center justify-center"
           >
             {#if cell.top}
-              <Circle class="fill-brand" />
+              <Circle class="fill-brand **:size-5" />
             {:else if cell.unstack}
-              <Cross class="fill-brand-soft rotate-45" />
+              <Cross class="fill-brand-soft rotate-45 **:size-5" />
             {/if}
           </div>
         </div>

@@ -1,14 +1,19 @@
-import { generate } from "../generator";
-import { Generator, type SpecializedMaze } from "./generation_by_sets";
-import { createMaze } from "../maze";
+import { generate } from "$lib/algorithms/maze/generator";
+import { Generator, type SpecializedMaze } from "./generator";
+import { createMaze } from "$lib/algorithms/maze/maze";
 
 self.onmessage = (event) => {
   const data = event.data as { rows: number; columns: number };
   const gen = Generator({});
   const initial: SpecializedMaze = createMaze(
     { rows: data.rows, columns: data.columns },
-    () => false,
-    () => false,
+    () => ({
+      visited: false,
+      parent: undefined,
+      children: undefined,
+      top: undefined,
+    }),
+    () => true,
   );
 
   const mazes = generate(gen, initial);
