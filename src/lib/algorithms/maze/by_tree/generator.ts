@@ -1,16 +1,13 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import type { MazeGenerator } from "$lib/algorithms/maze/generator";
 import {
-  cell,
-  getDirection,
-  getNeighbours,
+  getDirectionFromTo,
+  getNeighboursPosition,
   getOpposite,
-  set_cell,
-  set_wall,
   type Direction,
-  type Maze,
   type Position,
-} from "$lib/algorithms/maze/maze";
+} from "$lib/2d";
+import type { MazeGenerator } from "$lib/algorithms/maze/generator";
+import { cell, set_cell, set_wall, type Maze } from "$lib/algorithms/maze/maze";
 
 export type State = {
   phase: "initial" | "iteration" | "done";
@@ -47,14 +44,17 @@ export function Generator(config: Config): SpecializedGenerator {
 
       if (stack.length == 0) {
         const randomPos: Position = {
-          col: Math.floor(Math.random() * maze.dimensions.columns),
-          row: Math.floor(Math.random() * maze.dimensions.rows),
+          x: Math.floor(Math.random() * maze.dimensions.width),
+          y: Math.floor(Math.random() * maze.dimensions.height),
         };
         const randomCell = cell(maze, randomPos);
 
         return [
           {
-            maze: set_cell(maze, randomPos, { ...randomCell, top: true }),
+            maze: set_cell(maze, randomPos, {
+              ...randomCell,
+              top: true,
+            } as Cell),
             state: { stack: [randomPos], phase: "iteration" },
           },
         ];
@@ -62,7 +62,7 @@ export function Generator(config: Config): SpecializedGenerator {
 
       const top = stack[0]!;
 
-      const neighbours = getNeighbours(maze, top).filter(
+      const neighbours = getNeighboursPosition(maze, top).filter(
         (position) => !cell(maze, position).visited,
       );
 
@@ -74,7 +74,7 @@ export function Generator(config: Config): SpecializedGenerator {
                 ...cell(maze, top),
                 top: false,
                 unstack: true,
-              }),
+              } as Cell),
               state: {
                 subphase: "pop",
                 phase: "iteration",
@@ -91,13 +91,13 @@ export function Generator(config: Config): SpecializedGenerator {
                 set_cell(maze, stack[1], {
                   ...stackE,
                   top: true,
-                }),
+                } as Cell),
                 top,
                 {
                   ...cell(maze, top),
                   top: false,
                   unstack: true,
-                },
+                } as Cell,
               ),
               state: {
                 subphase: "pop",
@@ -112,7 +112,7 @@ export function Generator(config: Config): SpecializedGenerator {
       const randomNeighbour =
         neighbours[Math.floor(Math.random() * neighbours.length)];
 
-      const direction = getDirection(top, randomNeighbour)!;
+      const direction = getDirectionFromTo(top, randomNeighbour)!;
 
       const topCell = cell(maze, top);
       return [
@@ -124,7 +124,7 @@ export function Generator(config: Config): SpecializedGenerator {
                 children: [...(topCell.children ?? []), direction],
                 top: false,
                 visited: true,
-              }),
+              } as Cell),
               randomNeighbour,
               {
                 ...cell(maze, randomNeighbour),
@@ -132,7 +132,7 @@ export function Generator(config: Config): SpecializedGenerator {
                 top: true,
                 highlight: getOpposite(direction),
                 visited: true,
-              },
+              } as Cell,
             ),
             top,
             direction,
@@ -152,14 +152,14 @@ export function Generator(config: Config): SpecializedGenerator {
                 children: [...(topCell.children ?? []), direction],
                 top: false,
                 visited: true,
-              }),
+              } as Cell),
               randomNeighbour,
               {
                 ...cell(maze, randomNeighbour),
                 parent: getOpposite(direction),
                 top: true,
                 visited: true,
-              },
+              } as Cell,
             ),
             top,
             direction,

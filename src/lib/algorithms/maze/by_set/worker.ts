@@ -3,10 +3,10 @@ import { Generator, type SpecializedMaze } from "./generator";
 import { createMaze } from "$lib/algorithms/maze/maze";
 
 self.onmessage = (event) => {
-  const data = event.data as { rows: number; columns: number };
+  const data = event.data as { height: number; width: number };
   const gen = Generator({});
   const initial: SpecializedMaze = createMaze(
-    { rows: data.rows, columns: data.columns },
+    { height: data.height, width: data.width },
     () => false,
     () => false,
   );

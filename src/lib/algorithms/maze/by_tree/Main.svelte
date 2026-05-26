@@ -20,8 +20,8 @@
 
   import { onMount } from "svelte";
   import Worker from "./worker?worker";
-  import { getDirectionFromMod } from "$lib/algorithms/maze/maze";
   import TreeBoolean, { lookup } from "../../../components/TreeBoolean.svelte";
+  import { getDirectionFromVector } from "$lib/2d";
 
   let rows = $state(3);
   let columns = $state(3);
@@ -43,7 +43,7 @@
   let mazes: { maze: SpecializedMaze; state: State }[] = $state([]);
   let generating = $state(false);
   function generateMaze() {
-    worker.postMessage({ rows, columns });
+    worker.postMessage({ height: rows, width: columns });
     worker.onmessage = (event) => {
       const data = event.data as (Pick<
         SpecializedMaze,
@@ -85,7 +85,7 @@
           <div class="absolute w-full h-full grid grid-cols-3 grid-rows-3">
             {#each [1, 0, -1] as ymod (ymod)}
               {#each [-1, 0, 1] as xmod (xmod)}
-                {@const dir = getDirectionFromMod({ row: ymod, col: xmod })}
+                {@const dir = getDirectionFromVector({ y: ymod, x: xmod })}
                 <div
                   class={`${(dir != null && paths.find((o) => o == dir) != null) || ((paths.length != 0 || cell.top) && ymod == 0 && xmod == 0) ? (cell.highlight != null && paths.includes(cell.highlight) ? "bg-stone-800" : "bg-white") : ""}`}
                 ></div>

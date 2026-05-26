@@ -1,13 +1,11 @@
-import type { MazeGenerator } from "$lib/algorithms/maze/generator";
 import {
-  directions,
-  getDirection,
-  getNeighbours,
-  set_cell,
-  set_wall,
-  type Maze,
+  getDirectionFromTo,
+  getDirections,
+  getNeighboursPosition,
   type Position,
-} from "$lib/algorithms/maze/maze";
+} from "$lib/2d";
+import type { MazeGenerator } from "$lib/algorithms/maze/generator";
+import { set_cell, set_wall, type Maze } from "$lib/algorithms/maze/maze";
 
 export type State = {
   phase: "initial" | "iteration" | "done";
@@ -26,15 +24,14 @@ export type State = {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type Config = {};
 
-export type SpecializedMaze = Maze<
-  "first" | "second" | "neighbour" | false,
-  boolean
->;
+export type CellType = "first" | "second" | "neighbour" | false;
+
+export type SpecializedMaze = Maze<CellType, boolean>;
 
 export type SpecializedGenerator = MazeGenerator<
   Config,
   State,
-  "first" | "second" | "neighbour" | false,
+  CellType,
   boolean
 >;
 
@@ -43,16 +40,16 @@ export function Generator(config: Config): SpecializedGenerator {
     config,
     initial_state(maze) {
       return {
-        entries: Array.from({ length: maze.dimensions.rows })
+        entries: Array.from({ length: maze.dimensions.height })
           .flatMap((_, x) =>
-            Array.from({ length: maze.dimensions.columns }).map((_, y) => ({
-              row: x,
-              col: y,
+            Array.from({ length: maze.dimensions.width }).map((_, y) => ({
+              y: x,
+              x: y,
             })),
           )
           .map((pos) => ({
             set: [pos],
-            neighbours: getNeighbours(maze, pos),
+            neighbours: getNeighboursPosition(maze, pos),
           })),
         phase: "initial",
       };
@@ -62,17 +59,15 @@ export function Generator(config: Config): SpecializedGenerator {
         case "initial":
           return [
             {
-              maze: Array.from({ length: maze.dimensions.rows })
-                .flatMap((_, row) =>
-                  Array.from({ length: maze.dimensions.columns }).map(
-                    (_, col) => ({
-                      row,
-                      col,
-                    }),
-                  ),
+              maze: Array.from({ length: maze.dimensions.height })
+                .flatMap((_, y) =>
+                  Array.from({ length: maze.dimensions.width }).map((_, x) => ({
+                    y,
+                    x,
+                  })),
                 )
                 .reduce((maze, pos) => {
-                  return directions.reduce(
+                  return getDirections().reduce(
                     (maze, dir) => set_wall(maze, pos, dir, true),
                     maze,
                   );
@@ -93,20 +88,19 @@ export function Generator(config: Config): SpecializedGenerator {
             ];
 
           const id_second = state.entries.findIndex((entry) =>
-            entry.set.find(
-              (p) => p.col == destination.col && p.row == destination.row,
-            ),
+            entry.set.find((p) => p.x == destination.x && p.y == destination.y),
           )!;
           const second = state.entries[id_second];
 
-          const origin = getNeighbours(maze, destination).filter((origin) =>
-            first.set.find((p) => p.col == origin.col && p.row == origin.row),
+          const origin = getNeighboursPosition(maze, destination).filter(
+            (origin) =>
+              first.set.find((p) => p.x == origin.x && p.y == origin.y),
           )[0];
 
           return [
             {
               maze: first.set.reduceRight(
-                (maze, p) => set_cell(maze, p, "first"),
+                (maze, p) => set_cell(maze, p, "first" as CellType),
                 maze,
               ),
               state: {
@@ -117,9 +111,9 @@ export function Generator(config: Config): SpecializedGenerator {
 
             {
               maze: first.neighbours.reduceRight(
-                (maze, p) => set_cell(maze, p, "neighbour"),
+                (maze, p) => set_cell(maze, p, "neighbour" as CellType),
                 first.set.reduceRight(
-                  (maze, p) => set_cell(maze, p, "first"),
+                  (maze, p) => set_cell(maze, p, "first" as CellType),
                   maze,
                 ),
               ),
@@ -131,8 +125,8 @@ export function Generator(config: Config): SpecializedGenerator {
 
             {
               maze: first.set.reduceRight(
-                (maze, p) => set_cell(maze, p, "first"),
-                set_cell(maze, destination, "neighbour"),
+                (maze, p) => set_cell(maze, p, "first" as CellType),
+                set_cell(maze, destination, "neighbour" as CellType),
               ),
               state: {
                 ...state,
@@ -141,9 +135,9 @@ export function Generator(config: Config): SpecializedGenerator {
             },
             {
               maze: second.set.reduceRight(
-                (maze, p) => set_cell(maze, p, "second"),
+                (maze, p) => set_cell(maze, p, "second" as CellType),
                 first.set.reduceRight(
-                  (maze, p) => set_cell(maze, p, "first"),
+                  (maze, p) => set_cell(maze, p, "first" as CellType),
                   maze,
                 ),
               ),
@@ -156,7 +150,7 @@ export function Generator(config: Config): SpecializedGenerator {
               maze: set_wall(
                 maze,
                 origin,
-                getDirection(origin, destination)!,
+                getDirectionFromTo(origin, destination)!,
                 false,
               ),
               state: {
@@ -172,12 +166,10 @@ export function Generator(config: Config): SpecializedGenerator {
                       ].filter(
                         (neighbour) =>
                           !first.set.find(
-                            (p) =>
-                              p.col == neighbour.col && p.row == neighbour.row,
+                            (p) => p.x == neighbour.x && p.y == neighbour.y,
                           ) &&
                           !second.set.find(
-                            (p) =>
-                              p.col == neighbour.col && p.row == neighbour.row,
+                            (p) => p.x == neighbour.x && p.y == neighbour.y,
                           ),
                       ),
                     },

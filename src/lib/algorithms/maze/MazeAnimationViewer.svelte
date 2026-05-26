@@ -1,12 +1,8 @@
 <script lang="ts" generics="Cell,Wall">
   import GridAnimationViewer from "$lib/components/GridAnimationViewer.svelte";
-  import {
-    cell,
-    wall,
-    type Maze,
-    type Position,
-  } from "$lib/algorithms/maze/maze";
+  import { cell, wall, type Maze } from "$lib/algorithms/maze/maze";
   import { type Snippet } from "svelte";
+  import type { Position } from "$lib/2d";
 
   let {
     mazes,
@@ -26,8 +22,8 @@
   {index}
   {speed}
   getDimension={(maze) => ({
-    width: maze.dimensions.columns,
-    height: maze.dimensions.rows,
+    width: maze.dimensions.width,
+    height: maze.dimensions.height,
   })}
 >
   {#snippet gridCellViewer(maze, position)}

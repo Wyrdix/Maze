@@ -38,7 +38,7 @@
   let mazes: { maze: SpecializedMaze; state: State }[] = $state([]);
   let generating = $state(false);
   function generateMaze() {
-    worker.postMessage({ rows, columns });
+    worker.postMessage({ height: rows, width: columns });
     worker.onmessage = (event) => {
       const data = event.data as (Pick<
         SpecializedMaze,
