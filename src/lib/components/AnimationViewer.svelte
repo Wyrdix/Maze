@@ -1,9 +1,11 @@
 <script lang="ts" generics="T">
-  import { Button, ButtonGroup, Range } from "flowbite-svelte";
+  import { Button, ButtonGroup, Modal, Range } from "flowbite-svelte";
   import GIF from "gif.js";
   import html2canvas from "html2canvas-pro";
   import {
     FastForward,
+    Maximize,
+    Minimize,
     Pause,
     Play,
     Rewind,
@@ -116,86 +118,114 @@
 
     gif.render();
   }
+
+  let fullscreen = $state(false);
 </script>
 
-<div class="flex flex-col w-full h-full items-center">
-  {#key frame}
-    <div bind:this={frameDiv} class="flex flex-col h-full bg-stone-500">
-      {#if frame != null}
-        {@render display(frame)}
-      {/if}
-    </div>
-  {/key}
-
-  <p class="my-2">
-    {index} / {frames.length}
-  </p>
-
-  <Range
-    id="range1"
-    bind:value={index}
-    min={0}
-    max={frames.length}
-    onmousedown={() => (speed = 0)}
-  />
-  <div
-    class="flex flex-row flex-1 my-5 items-center align-middle justify-center gap-5"
-  >
-    <ButtonGroup>
-      <Button
-        disabled={index <= 0}
-        onclick={() => (speed = -FAST_SPEED)}
-        class="hover:*:fill-black dark:hover:*:fill-white hover:**:stroke-2"
-      >
-        <Rewind
-          class={speed == -FAST_SPEED
-            ? "fill-black dark:fill-white stroke-2"
-            : ""}
-        />
-      </Button>
-      <Button
-        disabled={index <= 0}
-        onclick={() => {
-          index--;
-          speed = 0;
-        }}
-        class="hover:*:fill-black dark:hover:*:fill-white hover:**:stroke-2"
-      >
-        <SkipBack />
-      </Button>
-      <Button
-        onclick={() => (speed = speed != 0 ? 0 : SPEED)}
-        class="hover:*:fill-black dark:hover:*:fill-white hover:**:stroke-2"
-      >
-        {#if speed == 0}
-          <Play />
-        {:else}
-          <Pause />
+{#snippet content()}
+  <div class="flex-1 flex flex-col w-full h-full items-center">
+    {#key frame}
+      <div bind:this={frameDiv} class="flex-1 flex flex-col size-full">
+        {#if frame != null}
+          {@render display(frame)}
         {/if}
-      </Button>
-      <Button
-        disabled={index > frames.length - 1}
-        onclick={() => {
-          index++;
-          speed = 0;
-        }}
-        class="hover:*:fill-black dark:hover:*:fill-white hover:**:stroke-2"
+      </div>
+    {/key}
+
+    <p class="my-2">
+      {index} / {frames.length}
+    </p>
+
+    <Range
+      id="range1"
+      bind:value={index}
+      min={0}
+      max={frames.length}
+      onmousedown={() => (speed = 0)}
+    />
+    <div class="flex flex-row w-full my-5 justify-center gap-5">
+      <ButtonGroup>
+        <Button
+          disabled={index <= 0}
+          onclick={() => (speed = -FAST_SPEED)}
+          class="hover:*:fill-black dark:hover:*:fill-white hover:**:stroke-2"
+        >
+          <Rewind
+            class={speed == -FAST_SPEED
+              ? "fill-black dark:fill-white stroke-2"
+              : ""}
+          />
+        </Button>
+        <Button
+          disabled={index <= 0}
+          onclick={() => {
+            index--;
+            speed = 0;
+          }}
+          class="hover:*:fill-black dark:hover:*:fill-white hover:**:stroke-2"
+        >
+          <SkipBack />
+        </Button>
+        <Button
+          onclick={() => (speed = speed != 0 ? 0 : SPEED)}
+          class="hover:*:fill-black dark:hover:*:fill-white hover:**:stroke-2"
+        >
+          {#if speed == 0}
+            <Play />
+          {:else}
+            <Pause />
+          {/if}
+        </Button>
+        <Button
+          disabled={index > frames.length - 1}
+          onclick={() => {
+            index++;
+            speed = 0;
+          }}
+          class="hover:*:fill-black dark:hover:*:fill-white hover:**:stroke-2"
+        >
+          <SkipForward />
+        </Button>
+        <Button
+          onclick={() => (speed = FAST_SPEED)}
+          class="hover:*:fill-black dark:hover:*:fill-white hover:**:stroke-2"
+        >
+          <FastForward
+            class={speed == FAST_SPEED
+              ? "fill-black dark:fill-white stroke-2"
+              : ""}
+          />
+        </Button>
+      </ButtonGroup>
+      <Button color="alternative" onclick={onDownloadGif}
+        ><h5>Save as Gif</h5></Button
       >
-        <SkipForward />
-      </Button>
       <Button
-        onclick={() => (speed = FAST_SPEED)}
-        class="hover:*:fill-black dark:hover:*:fill-white hover:**:stroke-2"
+        color="alternative"
+        class="justify-self-end"
+        onclick={() => (fullscreen = !fullscreen)}
+        >{#if fullscreen}
+          <Minimize />
+        {:else}
+          <Maximize />
+        {/if}</Button
       >
-        <FastForward
-          class={speed == FAST_SPEED
-            ? "fill-black dark:fill-white stroke-2"
-            : ""}
-        />
-      </Button>
-    </ButtonGroup>
-    <Button color="alternative" onclick={onDownloadGif}
-      ><h5>Save as Gif</h5></Button
-    >
+    </div>
   </div>
-</div>
+{/snippet}
+
+{#if !fullscreen}
+  {@render content()}
+{/if}
+
+<Modal
+  bind:open={fullscreen}
+  fullscreen
+  size="none"
+  class="bg-gray-100"
+  classes={{
+    body: "flex flex-col flex-1 bg-gray-50 antialiased dark:bg-gray-900 dark:text-white",
+  }}
+>
+  {@render content()}
+</Modal>

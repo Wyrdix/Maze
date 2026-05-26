@@ -7,7 +7,7 @@
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
-<div class="h-dvh flex flex-col">
+<div class="min-h-dvh flex flex-col">
   <NavigationBar />
   {@render children()}
 </div>

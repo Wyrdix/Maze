@@ -1,14 +1,36 @@
-<script lang="ts">
+<script lang="ts" generics="T extends Record<string, unknown>">
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   import type { Algorithm } from "$lib/algorithms/algorithm";
   import { Card } from "flowbite-svelte";
-  let { data }: { data: { algorithm: Algorithm } } = $props();
+  import { onMount } from "svelte";
+  let { data }: { data: { algorithm: Algorithm<T> } } = $props();
+
+  // svelte-ignore state_referenced_locally
+  let settings = $state(data.algorithm.initial_settings);
 
   let Display = $derived(data.algorithm.display);
+  let Setting = $derived(data.algorithm.setting);
+
+  let div: HTMLDivElement | undefined = $state();
+
+  onMount(() => {
+    div?.scrollIntoView({ behavior: "smooth" });
+  });
 </script>
 
-<div class="relative h-full max-w-none w-auto flex-1 m-10">
-  <Card class="relative max-h-full w-full h-full max-w-none flex flex-row">
-    <div class="flex-1 flex-col p-5"></div>
-    <Display />
+<div
+  bind:this={div}
+  class="relative h-dvh min-h-dvh flex-col max-w-none flex-1 p-10 flex gap-5"
+>
+  <Card class="relative w-full h-full flex-1 p-10 pb-0 max-w-none">
+    <Display bind:settings={settings as any} />
   </Card>
 </div>
+
+{#if Setting}
+  <div class="relative flex-col max-w-none flex-1 p-10 flex gap-5">
+    <Card class="relative w-full h-full flex-1 p-10 pb-0 max-w-none">
+      <Setting bind:settings={settings as any} />
+    </Card>
+  </div>
+{/if}

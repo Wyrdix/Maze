@@ -4,6 +4,9 @@
   import { Generator, type Config } from "./generator";
   import { cell as getCell, makeGrid, generate } from "./grid";
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type, no-useless-assignment
+  let { settings = $bindable() }: { settings: {} } = $props();
+
   const config: Config<number> = {
     values: [1, 2, 3],
     rules: [
