@@ -23,13 +23,16 @@ export function getNeighboursPosition(
 ): Position[] {
   return getDirections()
     .map((direction) => getMovedAlongDirection(position, direction))
-    .filter(
-      (v) =>
-        v.y >= 0 &&
-        v.x >= 0 &&
-        v.x < grid.dimensions.width &&
-        v.y < grid.dimensions.height,
-    );
+    .filter((v) => isInBound(grid, v));
+}
+
+export function isInBound(grid: Grid<unknown>, position: Position) {
+  return (
+    position.y >= 0 &&
+    position.x >= 0 &&
+    position.x < grid.dimensions.width &&
+    position.y < grid.dimensions.height
+  );
 }
 
 export function makeGrid<Data>(

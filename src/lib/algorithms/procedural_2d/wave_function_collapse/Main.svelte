@@ -1,20 +1,40 @@
 <script lang="ts">
-  import { directions } from "$lib/algorithms/maze/maze";
+  import { getDirections } from "$lib/2d";
   import GridAnimationViewer from "$lib/components/GridAnimationViewer.svelte";
   import { Generator, type Config } from "./generator";
-  import { cell as getCell, createGrid, generate } from "./grid";
+  import { cell as getCell, makeGrid, generate } from "./grid";
 
   const config: Config<number> = {
+    values: [1, 2, 3],
     rules: [
-      ...directions.map((dir) => ({ source: 1, target: 1, direction: dir })),
-      ...directions.map((dir) => ({ source: 1, target: 2, direction: dir })),
-      ...directions.map((dir) => ({ source: 2, target: 3, direction: dir })),
+      ...getDirections().map((dir) => ({
+        source: 1,
+        target: 1,
+        direction: dir,
+      })),
+      ...getDirections().map((dir) => ({
+        source: 1,
+        target: 2,
+        direction: dir,
+      })),
+      ...getDirections().map((dir) => ({
+        source: 2,
+        target: 2,
+        direction: dir,
+      })),
+      ...getDirections().map((dir) => ({
+        source: 2,
+        target: 3,
+        direction: dir,
+      })),
     ],
   };
-  const generator = Generator<number>(config);
-  const grid = createGrid<number>({ width: 3, height: 3 });
-  const value = generate(generator, grid, 20);
-  $inspect(value);
+  const generator = Generator<number>(config, (a, b) => a == b);
+  const grid = makeGrid<number>({ width: 10, height: 10 }, () => ({
+    type: "superposition",
+    value: [1, 2, 3],
+  }));
+  const value = generate(generator, grid, 10000);
 </script>
 
 <GridAnimationViewer

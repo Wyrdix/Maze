@@ -1,7 +1,7 @@
 <script lang="ts" generics="Grid">
-  import { type Position } from "$lib/algorithms/maze/maze";
   import { type Snippet } from "svelte";
   import AnimationViewer from "./AnimationViewer.svelte";
+  import type { Position } from "$lib/2d";
 
   let {
     frames: grids,

@@ -1,9 +1,12 @@
-import type { Direction, Position } from "$lib/algorithms/maze/maze";
+import {
+  makeGrid as makeGrid_general,
+  type Dimensions,
+  type Direction,
+  type Grid as Grid_general,
+  type Position,
+} from "$lib/2d";
 
 export type Cell<V> =
-  | {
-      type: "unknown";
-    }
   | { type: "collapsed"; readonly value: V }
   | { type: "superposition"; readonly value: V[] };
 
@@ -13,39 +16,15 @@ export type Rule<V> = {
   readonly target: V;
 };
 
-export type Grid<V> = {
-  dimensions: Dimension;
-  cells: Cell<V>[][];
-};
+export type Grid<Data> = Grid_general<Cell<Data>>;
 
-export type Dimension = { width: number; height: number };
+export { cell, set_cell } from "$lib/2d";
 
-export function cell<V>(grid: Grid<V>, position: Position): Cell<V> {
-  return grid.cells[position.x]?.[position.y];
-}
-export function set_cell<V>(
-  grid: Grid<V>,
-  position: Position,
-  cell: Cell<V>,
-): Grid<V> {
-  const newCells = [...grid.cells];
-  newCells[position.x] = [...newCells[position.x]];
-  newCells[position.x][position.y] = cell;
-  return {
-    ...grid,
-    cells: newCells,
-  };
-}
-
-export function createGrid<V>(dimensions: Dimension): Grid<V> {
-  return {
-    dimensions,
-    cells: Array.from({ length: dimensions.width }, () =>
-      Array.from({ length: dimensions.height }, () => ({
-        type: "unknown",
-      })),
-    ),
-  };
+export function makeGrid<Data>(
+  dimensions: Dimensions,
+  initial: (position: Position) => Cell<Data>,
+): Grid<Data> {
+  return makeGrid_general(dimensions, initial);
 }
 
 export type WaveFunctionCollapseGenerator<Config, State, Data> = {
