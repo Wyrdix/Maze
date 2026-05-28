@@ -33,7 +33,6 @@
   });
 
   function generateMaze() {
-    console.log(settings);
     worker.postMessage({ height: settings.rows, width: settings.columns });
     worker.onmessage = (event) => {
       const data = event.data as (Pick<

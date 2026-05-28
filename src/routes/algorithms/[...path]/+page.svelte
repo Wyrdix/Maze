@@ -29,7 +29,7 @@
 
 {#if Setting}
   <div class="relative flex-col max-w-none flex-1 p-10 flex gap-5">
-    <Card class="relative w-full h-full flex-1 p-10 pb-0 max-w-none">
+    <Card class="relative w-full h-full flex-1 p-10 max-w-none">
       <Setting bind:settings={settings as any} />
     </Card>
   </div>

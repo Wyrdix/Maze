@@ -5,6 +5,7 @@ import {
   getNeighboursPosition,
   getOpposite,
   isInBound,
+  type Dimensions,
   type Direction,
   type Position,
 } from "$lib/2d";
@@ -33,7 +34,11 @@ export type State<Data> = {
   choices: Choice<Data>[];
 };
 
-export type Config<Data> = { rules: Rule<Data>[]; values: Data[] };
+export type Config<Data> = {
+  dimensions: Dimensions;
+  rules: Rule<Data>[];
+  values: Data[];
+};
 
 export type SpecializedGenerator<Data> = WaveFunctionCollapseGenerator<
   Config<Data>,
