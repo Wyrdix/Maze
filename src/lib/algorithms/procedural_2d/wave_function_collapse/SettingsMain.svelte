@@ -118,7 +118,7 @@
         })
     }
     bind:settings
-    index={selected}
+    bind:index={selected}
   />
 </Modal>
 

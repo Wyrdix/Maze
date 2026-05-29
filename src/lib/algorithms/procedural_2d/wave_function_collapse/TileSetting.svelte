@@ -1,12 +1,13 @@
 <script lang="ts">
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  import { Button, Dropzone, Fileupload, Label } from "flowbite-svelte";
+  import { Button, Dropzone, Fileupload, Label, select } from "flowbite-svelte";
   import type { Settings } from ".";
   import { getDirections, getOpposite, type Direction } from "$lib/2d";
+  import { Trash } from "@lucide/svelte";
 
   let {
     tile = $bindable(),
-    index,
+    index = $bindable(),
     settings = $bindable(),
   }: {
     tile: string | undefined;
@@ -55,6 +56,26 @@
     if (!previously) newRules.push({ source: index, target, direction });
 
     settings = { ...settings, rules: newRules };
+  }
+
+  function deleteTile() {
+    settings = {
+      ...settings,
+      tiles: [
+        ...settings.tiles.slice(0, index),
+        ...settings.tiles.slice(index + 1),
+      ],
+      rules: [
+        ...settings.rules
+          .filter((v) => v.source != index && v.target != index)
+          .map((v) => ({
+            source: v.source >= index ? v.source - 1 : v.source,
+            target: v.target >= index ? v.target - 1 : v.target,
+            direction: v.direction,
+          })),
+      ],
+    };
+    index = -1;
   }
 </script>
 
@@ -107,6 +128,15 @@
 
       <div class="text-sm text-gray-500">Configure adjacency rules</div>
     </div>
+
+    <div class="flex-1"></div>
+
+    <Button
+      class="bg-red-500 mr-10 aspect-square hover:bg-red-700"
+      onclick={deleteTile}
+    >
+      <Trash />
+    </Button>
   </div>
 
   <!-- Direction grids -->
