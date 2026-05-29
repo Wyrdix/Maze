@@ -94,18 +94,19 @@ export function Generator<Data>(
             const possible = GenericSet.from(
               config.values.filter((data) => {
                 const rules = [
-                  ...config.rules.filter((v) => eqFn(v.source, data)),
-                  ...config.rules
-                    .filter((v) => eqFn(v.target, data))
-                    .map((v) => ({
-                      source: v.target,
-                      target: v.source,
-                      direction: getOpposite(v.direction),
-                    })),
-                ];
+                  ...config.rules,
+                  ...config.rules.map((v) => ({
+                    source: v.target,
+                    target: v.source,
+                    direction: getOpposite(v.direction),
+                  })),
+                ].filter((v) => eqFn(v.source, data));
 
                 const available = new Map<Direction, boolean>(
-                  getDirections().map((d) => [d, false]),
+                  getDirections().map((d) => [
+                    d,
+                    !isInBound(grid, getMovedAlongDirection(position, d)),
+                  ]),
                 );
 
                 rules.forEach((rule) => {
@@ -119,9 +120,9 @@ export function Generator<Data>(
                     const targetCell = getCell(currentGrid, targetPosition);
                     const targetAvailable = getAvailable(stateSet, targetCell);
 
-                    if (!targetAvailable.has(rule.target)) return;
+                    if (targetAvailable.has(rule.target))
+                      available.set(rule.direction, true);
                   }
-                  available.set(rule.direction, true);
                 });
                 return available.values().find((o) => !o) == null;
               }),
@@ -184,6 +185,7 @@ export function Generator<Data>(
 
       if (problem != null) {
         const choice = state.choices[0];
+        if (choice == null) return [{ done: true, grid, state }];
         if (choice.index === choice.order.length - 1)
           return [
             {
