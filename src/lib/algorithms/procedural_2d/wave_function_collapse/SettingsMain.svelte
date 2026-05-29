@@ -1,23 +1,16 @@
 <script lang="ts">
-  import {
-    Button,
-    ButtonGroup,
-    Dropzone,
-    Input,
-    Label,
-    Modal,
-  } from "flowbite-svelte";
+  import { Button, Dropzone, Input, Label, Modal } from "flowbite-svelte";
   import { WAVE_FUNCTION_COLLAPSE, type Settings } from ".";
   import {
     FileDown,
     FileUp,
     InspectionPanel,
-    Minus,
     Plus,
     Trash,
   } from "@lucide/svelte";
   import TileSetting from "./TileSetting.svelte";
   import { fileToImageData, generate } from "./from_tileset";
+  import DimensionInput from "$lib/components/DimensionInput.svelte";
 
   let { settings = $bindable() }: { settings: Settings } = $props();
 
@@ -174,115 +167,12 @@
     Export
   </Button>
 
-  <div class="flex flex-row items-center justify-center gap-10">
-    <div class="relative flex w-fit gap-5 items-center">
-      Width:
-      <ButtonGroup>
-        <Button
-          type="button"
-          id="decrement-button"
-          onclick={() =>
-            (settings = {
-              ...settings,
-              dimensions: {
-                ...settings.dimensions,
-                width: settings.dimensions.width - 1,
-              },
-            })}
-        >
-          <Minus />
-        </Button>
-        <Input
-          bind:value={
-            () => settings.dimensions.width,
-            (width) => {
-              settings = {
-                ...settings,
-                dimensions: {
-                  ...settings.dimensions,
-                  width,
-                },
-              };
-            }
-          }
-          type="number"
-          id="quantity-input"
-          aria-describedby="helper-text-explanation"
-          placeholder="999"
-          required
-          class="w-16! text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-        />
-        <Button
-          type="button"
-          id="increment-button"
-          onclick={() =>
-            (settings = {
-              ...settings,
-              dimensions: {
-                ...settings.dimensions,
-                width: settings.dimensions.width + 1,
-              },
-            })}
-        >
-          <Plus />
-        </Button>
-      </ButtonGroup>
-    </div>
-
-    <div class="relative flex w-fit gap-5 items-center">
-      Height:
-      <ButtonGroup>
-        <Button
-          type="button"
-          id="decrement-button"
-          onclick={() =>
-            (settings = {
-              ...settings,
-              dimensions: {
-                ...settings.dimensions,
-                height: settings.dimensions.height - 1,
-              },
-            })}
-        >
-          <Minus />
-        </Button>
-        <Input
-          bind:value={
-            () => settings.dimensions.height,
-            (height) => {
-              settings = {
-                ...settings,
-                dimensions: {
-                  ...settings.dimensions,
-                  height,
-                },
-              };
-            }
-          }
-          type="number"
-          id="quantity-input"
-          aria-describedby="helper-text-explanation"
-          placeholder="999"
-          required
-          class="w-16! text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-        />
-        <Button
-          type="button"
-          id="increment-button"
-          onclick={() =>
-            (settings = {
-              ...settings,
-              dimensions: {
-                ...settings.dimensions,
-                height: settings.dimensions.height + 1,
-              },
-            })}
-        >
-          <Plus />
-        </Button>
-      </ButtonGroup>
-    </div>
-  </div>
+  <DimensionInput
+    bind:dimensions={
+      () => settings.dimensions,
+      (dimensions) => (settings = { ...settings, dimensions })
+    }
+  />
 
   <Dropzone
     class="inline-flex flex-row items-center gap-5 p-5 bg-stone-500 w-fit h-fit flex-nowrap"

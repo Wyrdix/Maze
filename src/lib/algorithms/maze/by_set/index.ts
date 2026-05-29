@@ -3,11 +3,11 @@ import { Braces } from "@lucide/svelte";
 import Main from "./Main.svelte";
 import type { TreeValue } from "$lib/components/TreeBoolean.svelte";
 import SettingsMain from "./SettingsMain.svelte";
+import type { Dimensions } from "$lib/2d";
 
 export type Settings = {
   generating?: boolean;
-  rows: number;
-  columns: number;
+  dimensions: Dimensions;
   animationsStepFilter: TreeValue<boolean>;
 };
 
@@ -17,16 +17,18 @@ export const MAZE_BY_SET: Algorithm<Settings> = {
     "Generate a maze using a randomized union of sets, each cells starting it its own set.",
   path: "maze/by_set",
   initial_settings: {
-    columns: 3,
-    rows: 3,
+    dimensions: {
+      height: 3,
+      width: 3,
+    },
     animationsStepFilter: [
-      false,
+      true,
       {
-        selection: false,
-        neighbour: false,
-        "random neighbour": false,
-        "randon neighbour entry": false,
-        "clear wall": false,
+        selection: true,
+        neighbour: true,
+        "random neighbour": true,
+        "randon neighbour entry": true,
+        "clear wall": true,
       },
     ],
   },

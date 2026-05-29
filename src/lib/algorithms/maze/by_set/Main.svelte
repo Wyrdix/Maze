@@ -24,7 +24,7 @@
   });
 
   function generateMaze() {
-    worker.postMessage({ height: settings.rows, width: settings.columns });
+    worker.postMessage({ ...settings.dimensions });
     worker.onmessage = (event) => {
       const data = event.data as (Pick<
         SpecializedMaze,
@@ -41,6 +41,7 @@
 
       settings.generating = false;
     };
+    worker.onerror = () => (settings = { ...settings, generating: false });
   }
 
   let filtered_mazes = $derived(
@@ -48,7 +49,7 @@
       (v) =>
         v.state.phase != "iteration" ||
         v.state.subphase == null ||
-        lookup(settings.animationsStepFilter, ["iteration", v.state.subphase]),
+        lookup(settings.animationsStepFilter, [v.state.subphase]),
     ),
   );
 </script>

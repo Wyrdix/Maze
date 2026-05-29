@@ -2,7 +2,6 @@
   import MazeViewer from "../MazeAnimationViewer.svelte";
   import { type SpecializedMaze, type State } from "./generator";
   import { Circle, Cross } from "@lucide/svelte";
-  import type { TreeValue } from "../../../components/TreeBoolean.svelte";
 
   import { onMount } from "svelte";
   import Worker from "./worker?worker";
@@ -18,14 +17,6 @@
     worker = new Worker();
   });
 
-  let animationsStepFilter: TreeValue<boolean> = $state([
-    false,
-    {
-      pop: false,
-      descend: false,
-    },
-  ] as const);
-
   let mazes: { maze: SpecializedMaze; state: State }[] = $state([]);
 
   $effect(() => {
@@ -33,7 +24,7 @@
   });
 
   function generateMaze() {
-    worker.postMessage({ height: settings.rows, width: settings.columns });
+    worker.postMessage({ ...settings.dimensions });
     worker.onmessage = (event) => {
       const data = event.data as (Pick<
         SpecializedMaze,
@@ -47,8 +38,9 @@
         } satisfies SpecializedMaze,
         state: v.state,
       }));
-      settings.generating = false;
+      settings = { ...settings, generating: false };
     };
+    worker.onerror = () => (settings = { ...settings, generating: false });
   }
 
   let filtered_mazes = $derived(
@@ -56,7 +48,7 @@
       (v) =>
         v.state.phase != "iteration" ||
         v.state.subphase == null ||
-        lookup(animationsStepFilter, ["iteration", v.state.subphase]),
+        lookup(settings.animationsStepFilter, [v.state.subphase]),
     ),
   );
 </script>

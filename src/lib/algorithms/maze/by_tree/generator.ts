@@ -115,6 +115,7 @@ export function Generator(config: Config): SpecializedGenerator {
       const direction = getDirectionFromTo(top, randomNeighbour)!;
 
       const topCell = cell(maze, top);
+
       return [
         {
           maze: set_wall(
