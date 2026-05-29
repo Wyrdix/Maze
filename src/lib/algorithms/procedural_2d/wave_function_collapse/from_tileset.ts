@@ -25,8 +25,8 @@ export async function generate(
   const tilesX = Math.floor(data.width / N);
   const tilesY = Math.floor(data.height / N);
 
-  canvas.width = N;
-  canvas.height = N;
+  canvas.width = tilesX;
+  canvas.height = tilesY;
 
   const tileMap = new Map<string, number>();
   const cells: number[][] = [];
@@ -43,8 +43,18 @@ export async function generate(
     fctx.putImageData(data, 0, 0);
 
     // copy region into N×N canvas
-    ctx.clearRect(0, 0, N, N);
-    ctx.drawImage(full, x * N, y * N, N, N, 0, 0, N, N);
+    ctx.clearRect(0, 0, tilesX, tilesY);
+    ctx.drawImage(
+      full,
+      x * tilesX,
+      y * tilesY,
+      tilesX,
+      tilesY,
+      0,
+      0,
+      tilesX,
+      tilesY,
+    );
 
     return canvas.toDataURL("image/png");
   }

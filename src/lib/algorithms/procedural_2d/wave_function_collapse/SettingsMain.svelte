@@ -54,11 +54,11 @@
     read.readAsArrayBuffer(file);
   }
 
-  function onImportTileset(file: File) {
-    if (file == null) return;
-    fileToImageData(file)
+  function onImportTileset() {
+    if (tilefile == null) return;
+    fileToImageData(tilefile)
       .then(async (data) => {
-        return await generate(data, 3);
+        return await generate(data, tileN);
       })
       .then((value) => {
         settings = {
@@ -71,6 +71,8 @@
 
   let selected = $state(-1);
   let fileName = $state("");
+  let tilefile = $state(undefined as File | undefined);
+  let tileN = $state(3);
   let exportModal = $state(false);
 </script>
 
@@ -118,6 +120,34 @@
     bind:settings
     index={selected}
   />
+</Modal>
+
+<Modal
+  bind:open={
+    () => tilefile != null, (b) => (tilefile = b ? tilefile : undefined)
+  }
+>
+  <div class="flex flex-col space-y-6">
+    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">
+      Importing settings...
+    </h3>
+
+    <Label class="space-y-2">
+      <span>Grid dimension</span>
+      <Input
+        type="number"
+        autocomplete="off"
+        autosave="false"
+        name="name"
+        bind:value={tileN}
+        required
+      />
+    </Label>
+
+    <Button type="submit" value="download" onclick={() => onImportTileset()}
+      >Download</Button
+    >
+  </div>
 </Modal>
 
 {#snippet tileAsset(tile: string | undefined, index: number)}
@@ -190,9 +220,7 @@
 <div class="flex flex-row my-5">
   <Dropzone
     class="inline-flex flex-row items-center p-5 gap-2 bg-brand h-fit flex-nowrap w-full"
-    bind:files={
-      () => null as FileList | null, (f) => onImportTileset(f!.item(0)!)
-    }
+    bind:files={() => null as FileList | null, (f) => (tilefile = f!.item(0)!)}
     autocomplete="off"
     autosave="false"
     multiple
