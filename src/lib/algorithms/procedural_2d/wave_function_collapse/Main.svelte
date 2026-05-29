@@ -84,3 +84,15 @@
     <h2 class="center inline text-xl">No data</h2>
   </div>
 {/if}
+
+<style>
+  img {
+    image-rendering: optimizeSpeed; /* STOP SMOOTHING, GIVE ME SPEED  */
+    image-rendering: -moz-crisp-edges; /* Firefox                        */
+    image-rendering: -o-crisp-edges; /* Opera                          */
+    image-rendering: -webkit-optimize-contrast; /* Chrome (and eventually Safari) */
+    image-rendering: pixelated; /* Universal support since 2021   */
+    image-rendering: optimize-contrast; /* CSS3 Proposed                  */
+    -ms-interpolation-mode: nearest-neighbor; /* IE8+                           */
+  }
+</style>

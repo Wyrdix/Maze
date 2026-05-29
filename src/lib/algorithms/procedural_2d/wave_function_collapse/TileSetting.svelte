@@ -87,6 +87,8 @@
     <Dropzone
       class="inline-flex flex-row items-center gap-5 p-0 bg-stone-500 w-fit h-fit flex-nowrap"
       multiple
+      autocomplete="off"
+      autosave="false"
       accept=".png"
       bind:files={
         () => null as FileList | null,
@@ -136,3 +138,15 @@
     {/each}
   </div>
 </div>
+
+<style>
+  img {
+    image-rendering: optimizeSpeed; /* STOP SMOOTHING, GIVE ME SPEED  */
+    image-rendering: -moz-crisp-edges; /* Firefox                        */
+    image-rendering: -o-crisp-edges; /* Opera                          */
+    image-rendering: -webkit-optimize-contrast; /* Chrome (and eventually Safari) */
+    image-rendering: pixelated; /* Universal support since 2021   */
+    image-rendering: optimize-contrast; /* CSS3 Proposed                  */
+    -ms-interpolation-mode: nearest-neighbor; /* IE8+                           */
+  }
+</style>

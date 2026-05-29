@@ -7,9 +7,17 @@
     Label,
     Modal,
   } from "flowbite-svelte";
-  import type { Settings } from ".";
-  import { FileDown, FileUp, Minus, Plus } from "@lucide/svelte";
+  import { WAVE_FUNCTION_COLLAPSE, type Settings } from ".";
+  import {
+    FileDown,
+    FileUp,
+    InspectionPanel,
+    Minus,
+    Plus,
+    Trash,
+  } from "@lucide/svelte";
   import TileSetting from "./TileSetting.svelte";
+  import { fileToImageData, generate } from "./from_tileset";
 
   let { settings = $bindable() }: { settings: Settings } = $props();
 
@@ -53,15 +61,27 @@
     read.readAsArrayBuffer(file);
   }
 
-  let selected = $state(-1);
+  function onImportTileset(file: File) {
+    if (file == null) return;
+    fileToImageData(file)
+      .then(async (data) => {
+        return await generate(data, 3);
+      })
+      .then((value) => {
+        settings = {
+          ...settings,
+          rules: value.rules,
+          tiles: value.tiles,
+        };
+      });
+  }
 
+  let selected = $state(-1);
+  let fileName = $state("");
   let exportModal = $state(false);
 </script>
 
-<Modal
-  bind:open={exportModal}
-  onaction={({ data }) => onExport(data.get("name")!.toString())}
->
+<Modal bind:open={exportModal}>
   <div class="flex flex-col space-y-6">
     <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">
       Exporting settings...
@@ -69,10 +89,19 @@
 
     <Label class="space-y-2">
       <span>File name</span>
-      <Input type="text" name="name" value="wave_function_collapse" required />
+      <Input
+        type="text"
+        autocomplete="off"
+        autosave="false"
+        name="name"
+        bind:value={fileName}
+        required
+      />
     </Label>
 
-    <Button type="submit" value="download">Login to your account</Button>
+    <Button type="submit" value="download" onclick={() => onExport(fileName)}
+      >Download</Button
+    >
   </div>
 </Modal>
 
@@ -136,7 +165,10 @@
 <div class="flex flex-row justify-between gap-10 my-5">
   <Button
     class="inline-flex items-center gap-5 p-5 bg-stone-500"
-    onclick={() => (exportModal = true)}
+    onclick={() => {
+      exportModal = true;
+      fileName = "wave_function_collapse_algorithm";
+    }}
   >
     <FileDown />
     Export
@@ -254,6 +286,8 @@
 
   <Dropzone
     class="inline-flex flex-row items-center gap-5 p-5 bg-stone-500 w-fit h-fit flex-nowrap"
+    autocomplete="off"
+    autosave="false"
     bind:files={() => null as FileList | null, (f) => onImport(f!.item(0)!)}
     multiple
     accept=".json"
@@ -263,8 +297,41 @@
   </Dropzone>
 </div>
 
+<div class="flex flex-row my-5">
+  <Dropzone
+    class="inline-flex flex-row items-center p-5 gap-2 bg-brand h-fit flex-nowrap w-full"
+    bind:files={
+      () => null as FileList | null, (f) => onImportTileset(f!.item(0)!)
+    }
+    autocomplete="off"
+    autosave="false"
+    multiple
+    accept=".png"
+  >
+    <InspectionPanel />
+    Import tileset
+  </Dropzone>
+  <Button
+    class="bg-red-500 hover:bg-red-700"
+    onclick={() => (settings = WAVE_FUNCTION_COLLAPSE.initial_settings)}
+  >
+    <Trash />
+  </Button>
+</div>
 <Button
   class="bg-brand"
   onclick={() => (settings = { ...settings, generating: true })}
   >Generate</Button
 >
+
+<style>
+  img {
+    image-rendering: optimizeSpeed; /* STOP SMOOTHING, GIVE ME SPEED  */
+    image-rendering: -moz-crisp-edges; /* Firefox                        */
+    image-rendering: -o-crisp-edges; /* Opera                          */
+    image-rendering: -webkit-optimize-contrast; /* Chrome (and eventually Safari) */
+    image-rendering: pixelated; /* Universal support since 2021   */
+    image-rendering: optimize-contrast; /* CSS3 Proposed                  */
+    -ms-interpolation-mode: nearest-neighbor; /* IE8+                           */
+  }
+</style>
